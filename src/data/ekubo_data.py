@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 import numpy as np
 from starknet_py.net.full_node_client import FullNodeClient
-from src.utils.ekubo_math import bool_to_sign, price_to_tick_id
+from src.utils.ekubo_math import bool_to_sign, price_to_nearest_tick
 
 class EkuboData:
     def __init__(self, client_url, contract_address, token0_address=None, token1_address=None, pool_fee=None, tick_spacing=None):
@@ -86,15 +86,15 @@ class EkuboData:
         median_prices_df = df.groupby('block_number')['price'].median().reset_index()
 
         # Add price boundaries and convert them to tick IDs
-        median_prices_df['tick_id_median'] = median_prices_df['price'].apply(price_to_tick_id)
+        median_prices_df['tick_id_median'] = median_prices_df['price'].apply(price_to_nearest_tick)
         median_prices_df['tick_id_minus%'] = median_prices_df['price'] * (1 - price_range_liquidity * 0.01)
         median_prices_df['tick_id_plus%'] = median_prices_df['price'] * (1 + price_range_liquidity * 0.01)
 
         # Create tick arrays without rounding
         median_prices_df['tick_id_array'] = median_prices_df.apply(
             lambda row: np.arange(
-                price_to_tick_id(row['tick_id_minus%']),
-                price_to_tick_id(row['tick_id_plus%']) + self.tick_spacing_touse,
+                price_to_nearest_tick(row['tick_id_minus%']),
+                price_to_nearest_tick(row['tick_id_plus%']) + self.tick_spacing_touse,
                 self.tick_spacing_touse
             ), axis=1
         )
@@ -124,3 +124,46 @@ class EkuboData:
             })
 
         return pd.DataFrame(liquidity_per_block)
+    
+    def split_dataframes(df_swap, df_liquidity, split_ratio=0.7):
+        """
+        Splits the input swap and liquidity DataFrames into training and testing sets based on the specified ratio.
+
+        Parameters:
+            df_swap (pd.DataFrame): DataFrame containing swap event data.
+            df_liquidity (pd.DataFrame): DataFrame containing liquidity event data.
+            split_ratio (float): The ratio to split the data. Default is 0.7 (70% for training, 30% for testing).
+
+        Returns:
+            dict: A dictionary containing the split DataFrames:
+                - 'train_swap_df': Training DataFrame for swap events.
+                - 'test_swap_df': Testing DataFrame for swap events.
+                - 'train_liquidity_df': Training DataFrame for liquidity events.
+                - 'test_liquidity_df': Testing DataFrame for liquidity events.
+                - 'split_block': The block number used for splitting the data.
+                - 'max_block': The maximum block number in the data.
+                - 'min_block': The minimum block number in the data.
+        """
+        # Calculate the maximum, minimum, and split block number
+        max_block = max(df_swap['block_number'])
+        min_block = min(df_swap['block_number'])
+        split_block = round(min_block + (max_block - min_block) * split_ratio)
+
+        # Split the data into the first 70% and the remaining 30% for both DataFrames
+        train_swap_df = df_swap[df_swap['block_number'] <= split_block]
+        test_swap_df = df_swap[df_swap['block_number'] > split_block]
+
+        train_liquidity_df = df_liquidity[df_liquidity['block_number'] <= split_block]
+        test_liquidity_df = df_liquidity[df_liquidity['block_number'] > split_block]
+
+        # Return the split DataFrames and block information
+        return {
+            'train_swap_df': train_swap_df,
+            'test_swap_df': test_swap_df,
+            'train_liquidity_df': train_liquidity_df,
+            'test_liquidity_df': test_liquidity_df,
+            'split_block': split_block,
+            'max_block': max_block,
+            'min_block': min_block
+        }
+

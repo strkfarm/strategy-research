@@ -1,2 +1,4 @@
 .ipynb_checkpoints
 secrets.json
+.idea
+_pycache_

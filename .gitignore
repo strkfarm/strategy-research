@@ -2,3 +2,9 @@
 secrets.json
 .idea
 _pycache_
+.python-version
+# Virtual environments
+.venv/
+env/
+# Poetry cache files
+.cache/

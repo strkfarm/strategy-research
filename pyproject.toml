@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "strategy-research"
+version = "0.1.0"
+description = "A project to research on finding optimal strategies to maximize yields"
+authors = ["Manvitha <molakalasivamanvitha@gmail.com>"]
+license = "None"
+# readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+pandas = ">=1.1,<1.5"
+numpy = ">=1.19,<1.22"
+matplotlib = ">=3.3,<3.6"
+seaborn = ">=0.11,<0.12"
+scipy = ">=1.5,<1.9"
+yfinance = ">=0.1.55,<0.2.0"
+starknet_py = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

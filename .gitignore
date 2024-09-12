@@ -1,7 +1,8 @@
 .ipynb_checkpoints
 secrets.json
-.idea
-_pycache_
+.idea/
+__pycache__/
+combined_events_response_swap.pkl
 .python-version
 # Virtual environments
 .venv/

@@ -90,17 +90,20 @@ def price_to_tick(price: float) -> int:
     """
     return int(math.log(price) / math.log(1.000001))
 
-def impermanent_loss(price_ratio: float) -> float:
+def impermanent_loss_absolute(price_ratio: float, sqrt_p, L) -> float:
     """
     Calculate the impermanent loss based on the price ratio between two assets.
-
+    Equation source: https://medium.com/auditless/how-to-calculate-impermanent-loss-full-derivation-803e8b2497b7
+    
     Parameters:
     - price_ratio (float): The ratio of the current price to the original price.
 
     Returns:
     - float: The calculated impermanent loss (a value between 0 and 1).
     """
-    return 1 - math.sqrt((4 * price_ratio) / ((price_ratio + 1) ** 2))
+    sqrt_k = price_ratio**0.5
+    k = price_ratio
+    return L * sqrt_p * (2*sqrt_k - 1 - k)
 #
 # Calculate x and y given liquidity and price range
 #

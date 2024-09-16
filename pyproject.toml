@@ -16,6 +16,9 @@ scipy = ">=1.5,<1.9"
 yfinance = ">=0.1.55,<0.2.0"
 starknet_py = "*"
 
+[tool.poetry.group.dev.dependencies]
+pdoc = "^14.7.0"
+
 [tool.pdoc]
 docformat = "numpy"  # Numpydoc-style docstrings
 output_dir = "docs"  # Directory to store generated docs

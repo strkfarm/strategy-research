@@ -48,7 +48,7 @@ class EkuboStrategyBase:
         sqrt_lower_bound = liquidity_lower_bound**0.5
         sqrt_upper_bound = liquidity_upper_bound**0.5
         sqrt_price = initial_price**0.5
-        initial_liquidity = get_liquidity(token1_provided, sqrt_price, sqrt_lower_bound)
+        initial_liquidity = get_liquidity(10**30, token1_provided, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
         initial_capital_token1 = get_capital_token1_terms_from_L(initial_liquidity, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
         current_liquidity = initial_liquidity
         current_capital_token1 = initial_capital_token1

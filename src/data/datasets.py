@@ -9,7 +9,7 @@ from google.cloud import storage
 import yaml
 
 with open("./schemas.yaml") as schema_file:
-     config = yaml.load(schema_file, Loader=yaml.Loader)
+     config = yaml.safe_load(schema_file, Loader=yaml.Loader)
 
 PROJECT_ID = os.getenv('strkfarm')
 BQ_DATASET = 'staging'

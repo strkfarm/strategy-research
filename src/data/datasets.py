@@ -11,7 +11,7 @@ import yaml
 with open("./schemas.yaml") as schema_file:
      config = yaml.load(schema_file, Loader=yaml.Loader)
 
-PROJECT_ID = os.getenv('cloudquicklab')
+PROJECT_ID = os.getenv('strkfarm')
 BQ_DATASET = 'staging'
 CS = storage.Client()
 BQ = bigquery.Client()
@@ -83,4 +83,4 @@ def create_schema_from_yaml(table_schema):
                schemaField._fields = create_schema_from_yaml(column['fields'])
      return schema
 
-streaming(data)
+     streaming(data)

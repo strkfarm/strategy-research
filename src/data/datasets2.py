@@ -68,7 +68,7 @@ class Datasets:
             bucket_name: The name of the GCS bucket. Defaults to BUCKET_NAME constant.
 
         Raises:
-            Exception: If authentication fails or bucket access is denied.
+            Exception: If authentication check fails or bucket access is denied.
         """
         self.project_id = project_id
         self.bucket_name = bucket_name
@@ -89,7 +89,7 @@ class Datasets:
                       filename: str, 
                       data_format: str = "json") -> None:
         """
-        Uploads data to Google Cloud Storage in the specified format.
+        Uploads data to Google Cloud Storage in the exact specified format.
 
         Args:
             data: The data to upload. Can be a pandas DataFrame, dict, list, or other serializable object.

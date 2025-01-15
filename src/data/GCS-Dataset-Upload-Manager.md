@@ -73,14 +73,18 @@ This class allows you to interact with your GCS bucket and perform dataset manag
 6. **`list_datasets(self, prefix=None)`**:
    - Lists all datasets in the GCS bucket, optionally filtering by prefix.
 
----
 
-## Example Usage
 
-### Initializing the Datasets Class
+## Running the Code
 
-```python
-from dataset_manager import Datasets
+### To run the code:
+1. **`Set up the environment:`**
+- Ensure you have the Google Cloud SDK installed and configured.
+- Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your service account key file:
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-file.json"
+```
+2. **`Run the Python script:`**
+- Execute the script using the following command:
+```python3 datasets2.py```
 
-# Initialize with your project ID and bucket name (or use defaults)
-datasets = Datasets(project_id="your-project-id", bucket_name="your-bucket-name")

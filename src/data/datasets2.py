@@ -182,9 +182,7 @@ class Datasets:
                 if as_dataframe:
                     return pd.DataFrame(csv_data[1:], columns=csv_data[0])
                 return csv_data
-            elif data_format == "pickle":
-                return pickle.loads(blob_data)
-
+           
         except Exception as e:
             print(f"Error reading {data_format} data: {e}")
             return None

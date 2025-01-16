@@ -11,7 +11,7 @@ import yaml # type: ignore
 
 # Load schema configuration from a YAML file
 with open("./schemas.yaml") as schema_file:
-    config = yaml.load(schema_file, Loader=yaml.Loader)
+    config = yaml.safe_load(schema_file)
 
 # Constants
 PROJECT_ID = os.getenv('strkfarm')  # Environment variable for project ID

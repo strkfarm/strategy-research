@@ -277,15 +277,15 @@ def main():
         datasets.init()
 
         # Specify the file path and target filename
-        file_path = "/Users/mac/Downloads/table-1_data_new_line_delimited_json.json"  # Replace with the actual file path
-        target_filename = "line_delimited_json.json"  # Desired name in GCS
+        file_path = "/Users/mac/Documents/React projects/strkfarm/strategy-research/data_downloaded/events_response_positions_updated.pkl"  # Replace with the actual file path
+        target_filename = "events_response_positions_updated.pkl"  # Desired name in GCS
 
-        # Read the file content
-        with open(file_path, "r", encoding="utf-8") as f:
+        # Open the pickle file in binary mode and load it
+        with open(file_path, "rb") as f:
             file_content = f.read()
 
-        # Upload the file content
-        datasets.upload_dataset(file_content, target_filename, data_format="csv")
+        # Upload the file content (as a pickle object)
+        datasets.upload_dataset(file_content, target_filename, data_format="pickle")
 
         print(f"File '{file_path}' uploaded successfully as '{target_filename}'.")
 
@@ -296,6 +296,7 @@ def main():
 
     except Exception as e:
         print(f"An error occurred in main: {e}")
+
 
 
 if __name__ == "__main__":

@@ -21,8 +21,7 @@ Typical usage example:
     datasets.upload_dataset(my_dataframe, "dataset.csv", data_format="csv")
     data = datasets.read_dataset("dataset.csv", data_format="csv")
 """
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module='urllib3')
+
 import json
 import csv
 import pickle
@@ -34,7 +33,7 @@ import pandas as pd
 
 # Module-level constants
 DEFAULT_PROJECT_ID: str = "strkfarm"
-DEFAULT_BUCKET_NAME: str = "strkfarm"  # Correct the bucket name
+DEFAULT_BUCKET_NAME: str = "strkfarm"  
 
 
 # Environment variable overrides for constants
@@ -59,7 +58,7 @@ class Datasets:
         bucket: The GCS bucket instance.
     """
 
-    def init(self, project_id: str = PROJECT_ID, bucket_name: str = BUCKET_NAME) -> None:
+    def __init__(self, project_id: str = PROJECT_ID, bucket_name: str = BUCKET_NAME) -> None:
         """
         Initializes the Datasets class with GCS credentials and bucket information.
 
@@ -68,7 +67,7 @@ class Datasets:
             bucket_name: The name of the GCS bucket. Defaults to BUCKET_NAME constant.
 
         Raises:
-            Exception: If authentication check fails or bucket access is denied.
+            Exception: If authentication fails or bucket access is denied.
         """
         self.project_id = project_id
         self.bucket_name = bucket_name
@@ -89,7 +88,7 @@ class Datasets:
                       filename: str, 
                       data_format: str = "json") -> None:
         """
-        Uploads data to Google Cloud Storage in the exact specified format.
+        Uploads data to Google Cloud Storage in the specified format.
 
         Args:
             data: The data to upload. Can be a pandas DataFrame, dict, list, or other serializable object.
@@ -182,7 +181,9 @@ class Datasets:
                 if as_dataframe:
                     return pd.DataFrame(csv_data[1:], columns=csv_data[0])
                 return csv_data
-           
+            elif data_format == "pickle":
+                return pickle.loads(blob_data)
+
         except Exception as e:
             print(f"Error reading {data_format} data: {e}")
             return None
@@ -215,6 +216,7 @@ class Datasets:
         Updates (overwrites) an existing dataset in Google Cloud Storage.
 
         This is a wrapper around upload_dataset that makes the update operation explicit.
+
         Args:
             data: The new data to upload.
             filename: The name of the file to update.
@@ -274,7 +276,6 @@ def main():
     try:
         # Initialize with default settings
         datasets = Datasets()
-        datasets.init()
 
         # Specify the file path and target filename
         file_path = "/Users/mac/Documents/React projects/strkfarm/strategy-research/data_downloaded/events_response_positions_updated.pkl"  # Replace with the actual file path
@@ -296,7 +297,39 @@ def main():
 
     except Exception as e:
         print(f"An error occurred in main: {e}")
+    """
+    Main entry point for demonstration purposes.
+    Shows example usage of the Datasets class.
+    """
+    try:
+        # Initialize with default settings
+        datasets = Datasets()
+        
+        # Local pickle file path (in the same directory as the script)
+        local_pickle_path = "/Users/mac/Documents/React projects/strkfarm/strategy-research/data_downloaded/events_response_positions_updated.pkl"   # Replace with your pickle file name
+        
+        # Read the local pickle file
+        with open(local_pickle_path, 'rb') as file:
+            pickle_data = pickle.load(file)
+            
+        # Upload to GCS with the same filename (or change as needed)
+        gcs_filename = os.path.basename(local_pickle_path)  # Uses same filename
+        
+        datasets.upload_dataset(pickle_data, gcs_filename, data_format="pickle")
+        
+        print(f"Successfully uploaded {local_pickle_path} to GCS")
+        
+        # Optional: Verify the upload by listing files
+        print("\nAvailable datasets in bucket:")
+        for dataset in datasets.list_datasets():
+            print(f"- {dataset}")
 
+    except FileNotFoundError as e:
+        print(f"Error: Pickle file not found - {e}")
+    except pickle.UnpicklingError as e:
+        print(f"Error: Invalid pickle file - {e}")
+    except Exception as e:
+        print(f"An error occurred in main: {e}")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,9 @@ seaborn = ">=0.11,<0.12"
 scipy = ">=1.5,<1.9"
 yfinance = ">=0.1.55,<0.2.0"
 starknet_py = "*"
+google-cloud-bigquery = "^3.0.0"  
+google-cloud-storage = "^2.8.0"   
+pyyaml = "^6.0"  
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

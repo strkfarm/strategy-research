@@ -104,9 +104,30 @@ def impermanent_loss_absolute(price_ratio: float, sqrt_p, L) -> float:
     sqrt_k = price_ratio**0.5
     k = price_ratio
     return L * sqrt_p * (2*sqrt_k - 1 - k)
-#
-# Calculate x and y given liquidity and price range
-#
+
+def get_liquidity(x, y, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
+    if sqrt_price <= sqrt_lower_bound:
+        liquidity = x * sqrt_lower_bound * sqrt_upper_bound / (sqrt_upper_bound - sqrt_lower_bound)
+    elif sqrt_price < sqrt_upper_bound:
+        liquidity0 = x * sqrt_price * sqrt_upper_bound / (sqrt_upper_bound - sqrt_price)
+        liquidity1 =  y / (sqrt_price - sqrt_lower_bound)
+        liquidity = min(liquidity0, liquidity1)
+    else:
+        liquidity = y / (sqrt_upper_bound - sqrt_lower_bound)
+    return liquidity
+
+def get_x(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
+    
+    # if the price is outside the range, use the range endpoints instead
+    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)     
+    return L * (sqrt_upper_bound - sqrt_price) / (sqrt_price * sqrt_upper_bound)
+
+def get_y(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
+    
+    # if the price is outside the range, use the range endpoints instead
+    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)     
+    return L * (sqrt_price - sqrt_lower_bound)
+
 def get_capital_token1_terms_from_L(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
     """
     Calculate the value of liquidity in terms of one of the tokens
@@ -119,29 +140,18 @@ def get_capital_token1_terms_from_L(L, sqrt_price, sqrt_lower_bound, sqrt_upper_
     Returns: 
     - float: The calculated liquidty in terms of token specified 1
     """
-    # if the price is outside the range, use the range endpoints instead
-    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)
-    x = L * (sqrt_upper_bound - sqrt_price) / (sqrt_price * sqrt_upper_bound) # x reserves in the pool
-    y = L * (sqrt_price - sqrt_lower_bound)
-    return  y + x*(sqrt_price**2)
-
-def get_liquidity(y, sqrt_price, sqrt_lower_bound):
-    return y / (sqrt_price - sqrt_lower_bound)
-
-def calculate_x(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
-    # if the price is outside the range, use the range endpoints instead
-    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)     
-    return L * (sqrt_upper_bound - sqrt_price) / (sqrt_price * sqrt_upper_bound)
+    x = get_x(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
+    y = get_y(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
+    return  x + y*(sqrt_price**2) # sqrt_price = y/x . y = x* sp^2
 
 def get_capital_in_token1_terms_fromy(y, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
-    L = y / (sqrt_price - sqrt_lower_bound)
-    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)     
-    x = L * (sqrt_upper_bound - sqrt_price) / (sqrt_price * sqrt_upper_bound)
-    capital_in_token1 = y + x*(sqrt_price**2) # price_ratio = token0/token1
-    return capital_in_token1
+    
+    L = get_liquidity(10**30, y, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
+    x = get_x(L, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
+    return x + y*(sqrt_price**2)
 
 
-def get_liquidity_from_token1_capital(eth_capital, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
+def get_liquidity_from_token1_capital(total_capital_token1_terms, sqrt_price, sqrt_lower_bound, sqrt_upper_bound):
     """
     Calculate liquidity given the capital provided in ETH and the price range.
 
@@ -154,11 +164,7 @@ def get_liquidity_from_token1_capital(eth_capital, sqrt_price, sqrt_lower_bound,
     Returns:
     - float: The calculated liquidity (L).
     """
-    # Ensure the price is within the specified bounds
-    sqrt_price = max(min(sqrt_price, sqrt_upper_bound), sqrt_lower_bound)
-    
-    # Calculate liquidity (L) based on the provided ETH capital
-    liquidity = eth_capital * (sqrt_price * sqrt_upper_bound) / (sqrt_upper_bound - sqrt_price)
-    
+    y = total_capital_token1_terms*sqrt_price**2/(1+sqrt_price**2)
+    x = total_capital_token1_terms/(1+sqrt_price**2)
+    liquidity = get_liquidity(x, y, sqrt_price, sqrt_lower_bound, sqrt_upper_bound)
     return liquidity
-

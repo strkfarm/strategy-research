@@ -9,3 +9,4 @@ combined_events_response_swap.pkl
 env/
 # Poetry cache files
 .cache/
+__init__
